@@ -1,6 +1,6 @@
 ﻿namespace SrtBinder
 {
-    partial class Form1
+    partial class MainFrm
     {
         /// <summary>
         ///  Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm));
             Lbx_SRT1 = new ListBox();
             Lbx_SRT2 = new ListBox();
             Btn_Combine = new Button();
@@ -41,28 +41,32 @@
             // 
             Lbx_SRT1.AllowDrop = true;
             Lbx_SRT1.FormattingEnabled = true;
-            Lbx_SRT1.ItemHeight = 23;
-            Lbx_SRT1.Location = new Point(18, 54);
+            Lbx_SRT1.ItemHeight = 15;
+            Lbx_SRT1.Location = new Point(11, 35);
+            Lbx_SRT1.Margin = new Padding(2);
             Lbx_SRT1.Name = "Lbx_SRT1";
-            Lbx_SRT1.Size = new Size(500, 50);
+            Lbx_SRT1.Size = new Size(320, 34);
             Lbx_SRT1.TabIndex = 0;
-            Lbx_SRT1.DragEnter += listBox1_DragEnter;
+            Lbx_SRT1.DragEnter += HandleDragEnter;
             // 
             // Lbx_SRT2
             // 
             Lbx_SRT2.AllowDrop = true;
             Lbx_SRT2.FormattingEnabled = true;
-            Lbx_SRT2.ItemHeight = 23;
-            Lbx_SRT2.Location = new Point(553, 54);
+            Lbx_SRT2.ItemHeight = 15;
+            Lbx_SRT2.Location = new Point(352, 35);
+            Lbx_SRT2.Margin = new Padding(2);
             Lbx_SRT2.Name = "Lbx_SRT2";
-            Lbx_SRT2.Size = new Size(500, 50);
+            Lbx_SRT2.Size = new Size(320, 34);
             Lbx_SRT2.TabIndex = 1;
+            Lbx_SRT2.DragEnter += HandleDragEnter;
             // 
             // Btn_Combine
             // 
-            Btn_Combine.Location = new Point(480, 139);
+            Btn_Combine.Location = new Point(305, 91);
+            Btn_Combine.Margin = new Padding(2);
             Btn_Combine.Name = "Btn_Combine";
-            Btn_Combine.Size = new Size(112, 34);
+            Btn_Combine.Size = new Size(71, 22);
             Btn_Combine.TabIndex = 2;
             Btn_Combine.Text = "Combine";
             Btn_Combine.UseVisualStyleBackColor = true;
@@ -70,9 +74,10 @@
             // 
             // Btn_Clear1
             // 
-            Btn_Clear1.Location = new Point(234, 12);
+            Btn_Clear1.Location = new Point(149, 8);
+            Btn_Clear1.Margin = new Padding(2);
             Btn_Clear1.Name = "Btn_Clear1";
-            Btn_Clear1.Size = new Size(112, 34);
+            Btn_Clear1.Size = new Size(71, 22);
             Btn_Clear1.TabIndex = 2;
             Btn_Clear1.Text = "Clear";
             Btn_Clear1.UseVisualStyleBackColor = true;
@@ -80,9 +85,10 @@
             // 
             // Btn_Clear2
             // 
-            Btn_Clear2.Location = new Point(752, 12);
+            Btn_Clear2.Location = new Point(479, 8);
+            Btn_Clear2.Margin = new Padding(2);
             Btn_Clear2.Name = "Btn_Clear2";
-            Btn_Clear2.Size = new Size(112, 34);
+            Btn_Clear2.Size = new Size(71, 22);
             Btn_Clear2.TabIndex = 2;
             Btn_Clear2.Text = "Clear";
             Btn_Clear2.UseVisualStyleBackColor = true;
@@ -91,17 +97,18 @@
             // Lbx_Output
             // 
             Lbx_Output.FormattingEnabled = true;
-            Lbx_Output.ItemHeight = 23;
-            Lbx_Output.Location = new Point(18, 209);
+            Lbx_Output.ItemHeight = 15;
+            Lbx_Output.Location = new Point(11, 136);
+            Lbx_Output.Margin = new Padding(2);
             Lbx_Output.Name = "Lbx_Output";
-            Lbx_Output.Size = new Size(1035, 211);
+            Lbx_Output.Size = new Size(660, 139);
             Lbx_Output.TabIndex = 3;
             // 
-            // Form1
+            // MainFrm
             // 
-            AutoScaleDimensions = new SizeF(11F, 23F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1078, 444);
+            ClientSize = new Size(686, 290);
             Controls.Add(Lbx_Output);
             Controls.Add(Btn_Clear2);
             Controls.Add(Btn_Clear1);
@@ -109,7 +116,8 @@
             Controls.Add(Lbx_SRT2);
             Controls.Add(Lbx_SRT1);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            Name = "Form1";
+            Margin = new Padding(2);
+            Name = "MainFrm";
             Text = "SrtBinder by CHL";
             ResumeLayout(false);
         }

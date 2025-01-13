@@ -1,113 +1,126 @@
 using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Forms.VisualStyles;
 
 namespace SrtBinder
 {
-
-
-    public partial class Form1 : Form
+    public partial class MainFrm : Form
     {
-        public Form1()
+        public MainFrm()
         {
             InitializeComponent();
+
+            this.Text = $"SrtBinder v{SrtBinderVersion()} by CHL";
+
 
             this.Lbx_SRT1.DragDrop += new
                  System.Windows.Forms.DragEventHandler(this.listBox1_DragDrop);
             this.Lbx_SRT1.DragEnter += new
-                 System.Windows.Forms.DragEventHandler(this.listBox1_DragEnter);
+                 System.Windows.Forms.DragEventHandler(this.HandleDragEnter);
             this.Lbx_SRT2.DragDrop += new
                  System.Windows.Forms.DragEventHandler(this.listBox2_DragDrop);
             this.Lbx_SRT2.DragEnter += new
-                 System.Windows.Forms.DragEventHandler(this.listBox2_DragEnter);
+                 System.Windows.Forms.DragEventHandler(this.HandleDragEnter);
         }
 
-        private void listBox1_DragEnter(object sender, DragEventArgs e)
+        public static string SrtBinderVersion()
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                e.Effect = DragDropEffects.All;
-            else
-                e.Effect = DragDropEffects.None;
+            // 取得目前執行中的組件
+            var assembly = Assembly.GetExecutingAssembly();
+
+            // 檔案版本 (File Version)
+            var fileVersionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
+            return fileVersionInfo.FileVersion;
         }
 
-        private void listBox2_DragEnter(object sender, DragEventArgs e)
+
+        private void HandleDragDrop(DragEventArgs e, ListBox targetListBox, ListBox otherListBox)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                e.Effect = DragDropEffects.All;
+            string[] s = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+
+            targetListBox.Items.Clear();
+
+            // 將所有檔案新增到目標 ListBox
+            foreach (string file in s)
+            {
+                targetListBox.Items.Add(file);
+            }
+
+            // 如果新增多於一個檔案，只保留第一個
+            if (targetListBox.Items.Count > 1)
+            {
+                object tmp = targetListBox.Items[0];
+                targetListBox.Items.Clear();
+                targetListBox.Items.Add(tmp);
+            }
+
+            // 驗證檔案是否合法
+            if (!IsValidSrtFile(s[0]))
+            {
+                MessageBox.Show(s[0] + " is not a good SRT file!");
+                targetListBox.Items.Clear();
+                return;
+            }
+
+            // 驗證兩個 ListBox 的第一個項目是否相等以設定按鈕狀態
+            if ((otherListBox.Items.Count > 0) &&
+                SrtLinesEqual(targetListBox.Items[0].ToString(), otherListBox.Items[0].ToString()))
+            {
+                Btn_Combine.Enabled = true;
+            }
             else
-                e.Effect = DragDropEffects.None;
+            {
+                Btn_Combine.Enabled = false;
+            }
         }
 
         private void listBox1_DragDrop(object sender, System.Windows.Forms.DragEventArgs e)
         {
-            string[] s = (string[])e.Data.GetData(DataFormats.FileDrop, false);
-
-            Lbx_SRT1.Items.Clear();
-
-            for (int i = 0; i < s.Length; i++)
-                Lbx_SRT1.Items.Add(s[i]);
-
-            if (Lbx_SRT1.Items.Count > 1)
-            {
-                Object tmp = Lbx_SRT1.Items[0];
-                Lbx_SRT1.Items.Clear();
-                Lbx_SRT1.Items.Add(tmp);
-            }
-
-            if (!IsValidSrtFile(s[0]))
-            {
-                MessageBox.Show(s[0] + " is not a good SRT file!");
-                Lbx_SRT1.Items.Clear();
-            }
-            else 
-            {
-                if ((Lbx_SRT2.Items.Count > 0) &&
-                        SrtLinesEqual(Lbx_SRT1.Items[0].ToString(), Lbx_SRT2.Items[0].ToString()))
-                {
-                    Btn_Combine.Enabled = true;
-                }
-                else
-                {
-                    Btn_Combine.Enabled = false;
-                }
-            }
+            HandleDragDrop(e, Lbx_SRT1, Lbx_SRT2);
         }
-               
+
 
         private void listBox2_DragDrop(object sender, System.Windows.Forms.DragEventArgs e)
         {
-            string[] s = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+            HandleDragDrop(e, Lbx_SRT2, Lbx_SRT1);
+        }
 
-            Lbx_SRT2.Items.Clear();
+        public static bool IsDivisibleBy4(int number)
+        {
+            return number % 4 == 0;
+        }
 
-            for (int i = 0; i < s.Length; i++)
-                Lbx_SRT2.Items.Add(s[i]);
+        public static bool OnlyChineseNumber(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return false;
 
-            if (Lbx_SRT2.Items.Count > 1)
+            // 定義僅包含中文數字字元的正規表示式
+            var pattern = @"^[零一二三四五六七八九十百千]+$";
+            var regex = new Regex(pattern);
+
+            // 檢查輸入字串是否符合
+            return regex.IsMatch(input);
+        }
+
+        public static bool IsIndexLine(string input, int lineNumber)
+        {
+            string indexPattern = @"^\d+$";
+
+            if (Regex.IsMatch(input, indexPattern))
             {
-                Object tmp = Lbx_SRT2.Items[0];
-                Lbx_SRT2.Items.Clear();
-                Lbx_SRT2.Items.Add(tmp);
+                return true;
             }
 
-            if (!IsValidSrtFile(s[0]))
+            if (IsDivisibleBy4(lineNumber) && OnlyChineseNumber(input))
             {
-                MessageBox.Show(s[0] + " is not a good SRT file!");
-                Lbx_SRT2.Items.Clear();
+                return true;
             }
-            else
-            {
-                if ((Lbx_SRT1.Items.Count > 0) &&
-                        SrtLinesEqual(Lbx_SRT1.Items[0].ToString(), Lbx_SRT2.Items[0].ToString()))
-                {
-                    Btn_Combine.Enabled = true;
-                }
-                else
-                {
-                    Btn_Combine.Enabled = false;
-                }
-            }
+
+            return false;
         }
 
         public static bool IsValidSrtFile(string filePath)
@@ -121,13 +134,12 @@ namespace SrtBinder
 
             // Regular expressions to match SRT format
             string timeStampPattern = @"^\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}$";
-            string indexPattern = @"^\d+$";
 
             int i = 0;
             while (i < lines.Length)
             {
                 // Check if line is an index
-                if (!Regex.IsMatch(lines[i], indexPattern))
+                if (!IsIndexLine(lines[i], i))
                 {
                     return false;
                 }
@@ -291,7 +303,7 @@ namespace SrtBinder
         public static bool SrtLinesEqual(string s1, string s2)
         {
             if (GetFileLineCount(s1) == GetFileLineCount(s2))
-            { 
+            {
                 return true;
             }
 
@@ -313,6 +325,14 @@ namespace SrtBinder
             string newFilePath = Path.Combine(directory, newFileName);  // 生成新路徑
 
             return newFilePath;
+        }
+
+        private void HandleDragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effect = DragDropEffects.All;
+            else
+                e.Effect = DragDropEffects.None;
         }
 
         // add SRT verify here
