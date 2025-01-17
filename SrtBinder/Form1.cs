@@ -120,6 +120,7 @@ namespace SrtBinder
                 return true;
             }
 
+            MessageBox.Show($"line {lineNumber+1} is not a index line!");
             return false;
         }
 
@@ -132,8 +133,7 @@ namespace SrtBinder
 
             string[] lines = File.ReadAllLines(filePath);
 
-            // Regular expressions to match SRT format
-            string timeStampPattern = @"^\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}$";
+            
 
             int i = 0;
             while (i < lines.Length)
@@ -147,8 +147,9 @@ namespace SrtBinder
                 i++;
 
                 // Check if line is a timestamp
-                if (i >= lines.Length || !Regex.IsMatch(lines[i], timeStampPattern))
+                if (i >= lines.Length || !IsTimestampLine(lines[i]))
                 {
+                    MessageBox.Show($"line {i + 1} is not a timestamp line!");
                     return false;
                 }
 
@@ -168,6 +169,25 @@ namespace SrtBinder
             }
 
             return true;
+        }
+
+        private static bool IsTimestampLine(string line)
+        {
+            // Regular expressions to match SRT format
+            // semi-width colon
+            // string timeStampPattern = @"^\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}$"; 
+            // full-width and semi-width colon, comma
+            string timeStampPattern = @"^\d{2}[：:]\d{2}[：:]\d{2}[，,]\d{3} --> \d{2}[：:]\d{2}[：:]\d{2}[，,]\d{3}$";
+
+            // precess the special case
+            string processedLine = line
+                .Replace("：",     ":")
+                .Replace("——>",    "-->")
+                .Replace("0-->", "0 -->")
+                .Replace("-->0", "--> 0")
+                .Replace("-->1", "--> 1");
+
+            return Regex.IsMatch(processedLine, timeStampPattern);
         }
 
         public static void MergeSrtFiles(string srtFile1, string srtFile2, string outputFile)
@@ -321,7 +341,7 @@ namespace SrtBinder
             string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);  // 取得檔名（不含副檔名）
             string extension = Path.GetExtension(filePath);  // 取得副檔名
 
-            string newFileName = $"{fileNameWithoutExtension}_2in1{extension}";  // 生成新檔名
+            string newFileName = $"{fileNameWithoutExtension}.zin1{extension}";  // 生成新檔名
             string newFilePath = Path.Combine(directory, newFileName);  // 生成新路徑
 
             return newFilePath;
